@@ -1,5 +1,5 @@
 import getTodos from "./getTodos.js";
-import view from "./view/index.js";
+// import view from "./view/index.js";
 
 import todosView from "./view/todos.js";
 import counterView from "./view/counter.js";
@@ -17,8 +17,6 @@ const state = {
   currentFilter: "All",
 };
 
-const main = document.querySelector(".todoapp");
-
 const renderWrapper = (component) => {
   return (targetElement, state) => {
     const element = component(targetElement, state);
@@ -26,9 +24,9 @@ const renderWrapper = (component) => {
 
     Array.from(childComponents).forEach((target) => {
       const name = target.dataset.component;
-
       const child = registry[name];
-      if (child) {
+
+      if (!child) {
         return;
       }
 
@@ -39,7 +37,16 @@ const renderWrapper = (component) => {
   };
 };
 
+const renderRoot = (root, state) => {
+  const cloneComponent = (root) => {
+    return root.cloneNode(true);
+  };
+
+  return renderWrapper(cloneComponent)(root, state);
+};
+
 window.requestAnimationFrame(() => {
-  const newMain = view(main, state);
+  const main = document.querySelector(".todoapp");
+  const newMain = renderRoot(main, state);
   main.replaceWith(newMain);
 });
