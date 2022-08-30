@@ -9,7 +9,7 @@ const getTodoCount = (todos) => {
 };
 
 class Footer extends HTMLElement {
-  static observedAttributes() {
+  static get observedAttributes() {
     return ["filter", "todos"];
   }
 
@@ -33,13 +33,19 @@ class Footer extends HTMLElement {
     this.setAttribute("filter", value);
   }
 
+  updateCount() {
+    const { todos } = this;
+    const label = getTodoCount(this.todos);
+    this.querySelector("span.todo-count").textContent = label;
+  }
+
   connectedCallback() {
     const template = document.getElementById("footer");
     const content = template.content.firstElementChild.cloneNode(true);
 
     this.appendChild(content);
 
-    const { filter, todos } = this;
+    const { filter } = this;
 
     this.querySelectorAll("li a").forEach((row) => {
       if (row.textContent === filter) {
@@ -49,9 +55,11 @@ class Footer extends HTMLElement {
       }
     });
 
-    const label = getTodoCount(todos);
+    this.updateCount();
+  }
 
-    this.querySelector("span.todo-count").textContent = label;
+  attributeChangedCallback() {
+    this.updateCount();
   }
 }
 
