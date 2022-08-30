@@ -1,11 +1,9 @@
-import getTodos from "./getTodos.js";
-
 import { appView, todosView, counterView, filtersView } from "./view/index.js";
 import { renderRoot, add } from "./resistry.js";
 import applyDiff from "./applyDiff.js";
 
 const state = {
-  todos: getTodos(),
+  todos: [],
   currentFilter: "All",
 };
 
@@ -22,10 +20,5 @@ const render = () => {
     applyDiff(document.body, main, newMain);
   });
 };
-
-// window.setInterval(() => {
-//   state.todos = getTodos();
-//   render();
-// }, 2000);
 
 render();
