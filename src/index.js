@@ -30,7 +30,9 @@ const events = {
 const render = () => {
   window.requestAnimationFrame(() => {
     const main = document.querySelector("#root");
-    const newMain = renderRoot(main, state);
+
+    const newMain = renderRoot(main, state, events);
+
     applyDiff(document.body, main, newMain);
   });
 };

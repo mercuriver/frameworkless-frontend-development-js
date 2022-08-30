@@ -5,8 +5,8 @@ const add = (name, component) => {
 };
 
 const renderWrapper = (component) => {
-  return (targetElement, state) => {
-    const element = component(targetElement, state);
+  return (targetElement, state, events) => {
+    const element = component(targetElement, state, events);
     const childComponents = element.querySelectorAll("[data-component]");
 
     Array.from(childComponents).forEach((target) => {
@@ -17,19 +17,19 @@ const renderWrapper = (component) => {
         return;
       }
 
-      target.replaceWith(child(target, state));
+      target.replaceWith(child(target, state, events));
     });
 
     return element;
   };
 };
 
-const renderRoot = (root, state) => {
+const renderRoot = (root, state, events) => {
   const cloneComponent = (root) => {
     return root.cloneNode(true);
   };
 
-  return renderWrapper(cloneComponent)(root, state);
+  return renderWrapper(cloneComponent)(root, state, events);
 };
 
 export { renderRoot, add };
