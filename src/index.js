@@ -2,6 +2,7 @@ import getTodos from "./getTodos.js";
 
 import { todosView, counterView, filtersView } from "./view/index.js";
 import { renderRoot, add } from "./resistry.js";
+import applyDiff from "./applyDiff.js";
 
 const state = {
   todos: getTodos(),
@@ -17,7 +18,7 @@ const render = () => {
   window.requestAnimationFrame(() => {
     const main = document.querySelector(".todoapp");
     const newMain = renderRoot(main, state);
-    main.replaceWith(newMain);
+    applyDiff(document.body, main, newMain);
   });
 };
 
