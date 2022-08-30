@@ -35,7 +35,7 @@ class List extends HTMLElement {
     return this.itemTemplate.content.firstElementChild.cloneNode(true);
   }
 
-  getTodoElement(todo, index) {
+  getTodoElement = (todo, index) => {
     const { text, completed } = todo;
 
     const element = this.createNewTodoNode();
@@ -51,7 +51,7 @@ class List extends HTMLElement {
     element.querySelector("button.destroy").dataset.index = index;
 
     return element;
-  }
+  };
 
   updateList() {
     this.list.innerHTML = "";
