@@ -8,7 +8,7 @@ const createNewTodoNode = () => {
   return template.content.firstElementChild.cloneNode(true);
 };
 
-const getTodoElement = (todo, index, events) => {
+const getTodoElement = (todo, index) => {
   const { text, completed } = todo;
   const element = createNewTodoNode();
 
@@ -20,21 +20,26 @@ const getTodoElement = (todo, index, events) => {
     element.querySelector("input.toggle").checked = true;
   }
 
-  const handler = (e) => events.deleteItem(index);
-  element.querySelector("button.destroy").addEventListener("click", handler);
+  element.querySelector("button.destroy").dataset.index = index;
 
   return element;
 };
 
-const view = (targetElement, { todos }, events) => {
+const view = (targetElement, { todos }, { deleteItem }) => {
   const newTodoList = targetElement.cloneNode(true);
   newTodoList.innerHTML = "";
 
   todos
-    .map((todo, index) => getTodoElement(todo, index, events))
+    .map((todo, index) => getTodoElement(todo, index))
     .forEach((element) => {
       newTodoList.appendChild(element);
     });
+
+  newTodoList.addEventListener("click", (e) => {
+    if (e.target.matches("button.destroy")) {
+      deleteItem(e.target.dataset.index);
+    }
+  });
 
   return newTodoList;
 };
