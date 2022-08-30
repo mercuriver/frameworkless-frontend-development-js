@@ -13,8 +13,17 @@ add("todos", todosView);
 add("counter", counterView);
 add("filters", filtersView);
 
-window.requestAnimationFrame(() => {
-  const main = document.querySelector(".todoapp");
-  const newMain = renderRoot(main, state);
-  main.replaceWith(newMain);
-});
+const render = () => {
+  window.requestAnimationFrame(() => {
+    const main = document.querySelector(".todoapp");
+    const newMain = renderRoot(main, state);
+    main.replaceWith(newMain);
+  });
+};
+
+window.setInterval(() => {
+  state.todos = getTodos();
+  render();
+}, 2000);
+
+render();
