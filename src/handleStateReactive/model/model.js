@@ -1,3 +1,5 @@
+import observableFactory from "./observable.js";
+
 const cloneDeep = (x) => {
   return JSON.parse(JSON.stringify(x));
 };
@@ -11,22 +13,6 @@ const INITIAL_STATE = {
 
 const modelFactory = (initalState = INITIAL_STATE) => {
   const state = cloneDeep(initalState);
-  let listeners = [];
-
-  const addChangeListener = (listener) => {
-    listeners.push(listener);
-
-    listener(freeze(state));
-
-    return () => {
-      listeners = listeners.filter((l) => l !== listener);
-    };
-  };
-
-  const invokeListeners = () => {
-    const data = freeze(state);
-    listeners.forEach((l) => l(data));
-  };
 
   const addItem = (text) => {
     if (!text) {
@@ -37,8 +23,6 @@ const modelFactory = (initalState = INITIAL_STATE) => {
       text,
       completed: false,
     });
-
-    invokeListeners();
   };
 
   const updateItem = (index, text) => {
@@ -55,8 +39,6 @@ const modelFactory = (initalState = INITIAL_STATE) => {
     }
 
     state.todos[index].text = text;
-
-    invokeListeners();
   };
 
   const deleteItem = (index) => {
@@ -69,8 +51,6 @@ const modelFactory = (initalState = INITIAL_STATE) => {
     }
 
     state.todos.splice(index, 1);
-
-    invokeListeners();
   };
 
   const toggleItemCompleted = (index) => {
@@ -83,31 +63,23 @@ const modelFactory = (initalState = INITIAL_STATE) => {
     }
 
     state.todos[index].completed = !state.todos[index].completed;
-
-    invokeListeners();
   };
 
   const completeAll = () => {
     state.todos.forEach((t) => {
       t.completed = true;
     });
-
-    invokeListeners();
   };
 
   const clearCompleted = () => {
     state.todos = state.todos.filter((t) => !t.completed);
-
-    invokeListeners();
   };
 
   const changeFilter = (filter) => {
     state.currentFilter = filter;
-
-    invokeListeners();
   };
 
-  return {
+  const model = {
     addItem,
     updateItem,
     deleteItem,
@@ -115,8 +87,9 @@ const modelFactory = (initalState = INITIAL_STATE) => {
     completeAll,
     clearCompleted,
     changeFilter,
-    addChangeListener,
   };
+
+  return observableFactory(model, () => state);
 };
 
 export default modelFactory;
