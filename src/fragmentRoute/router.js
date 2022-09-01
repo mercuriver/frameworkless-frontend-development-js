@@ -9,7 +9,7 @@ export default () => {
       (route) => route.fragment === window.location.hash
     );
 
-    if (currentRoute) {
+    if (!currentRoute) {
       notFound();
       return;
     }
