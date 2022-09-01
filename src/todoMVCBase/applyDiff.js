@@ -1,3 +1,15 @@
+const differentValue = (node1, node2) => {
+  if (node1.value !== node2.value) {
+    return true;
+  }
+
+  if (node1.checked !== node2.checked) {
+    return true;
+  }
+
+  return false;
+};
+
 const isNodeChanged = (node1, node2) => {
   const n1Attributes = node1.attributes;
   const n2Attributes = node2.attributes;
@@ -14,7 +26,7 @@ const isNodeChanged = (node1, node2) => {
     return true;
   }
 
-  const differentAAttribute = Array.from(n1Attributes).find((attribute) => {
+  const differentAttribute = Array.from(n1Attributes).find((attribute) => {
     const { name } = attribute;
     const attribute1 = node1.getAttribute(name);
     const attribute2 = node2.getAttribute(name);
@@ -22,7 +34,11 @@ const isNodeChanged = (node1, node2) => {
     return attribute1 !== attribute2;
   });
 
-  if (differentAAttribute) {
+  if (differentAttribute) {
+    return true;
+  }
+
+  if (differentValue(node1, node2)) {
     return true;
   }
 
