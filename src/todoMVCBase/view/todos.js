@@ -8,8 +8,31 @@ const createNewTodoNode = () => {
   return template.content.firstElementChild.cloneNode(true);
 };
 
-const getTodoElement = (todo, index) => {
+const attachEventsToTodoElement = (element, index, events) => {
+  const handler = (e) => events.deleteItem(index);
+
+  element.querySelector("button.destroy").addEventListener("click", handler);
+
+  element
+    .querySelector("input.toggle")
+    .addEventListener("click", (e) => events.toggleItemCompleted(index));
+
+  element.addEventListener("dblclick", () => {
+    element.classList.add("editing");
+    element.querySelector("input.edit").focus();
+  });
+
+  element.querySelector("input.edit").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      element.classList.remove("editing");
+      events.updateItem(index, e.target.value);
+    }
+  });
+};
+
+const getTodoElement = (todo, index, events) => {
   const { text, completed } = todo;
+
   const element = createNewTodoNode();
 
   element.querySelector("input.edit").value = text;
@@ -20,26 +43,37 @@ const getTodoElement = (todo, index) => {
     element.querySelector("input.toggle").checked = true;
   }
 
-  element.querySelector("button.destroy").dataset.index = index;
+  attachEventsToTodoElement(element, index, events);
 
   return element;
 };
 
-const view = (targetElement, { todos }, { deleteItem }) => {
+const filterTodos = (todos, filter) => {
+  const isCompleted = (todo) => todo.completed;
+  if (filter === "Active") {
+    return todos.filter((t) => !isCompleted(t));
+  }
+
+  if (filter === "Completed") {
+    return todos.filter(isCompleted);
+  }
+
+  return [...todos];
+};
+
+const view = (targetElement, state, events) => {
+  const { todos, currentFilter } = state;
   const newTodoList = targetElement.cloneNode(true);
+
   newTodoList.innerHTML = "";
 
-  todos
-    .map((todo, index) => getTodoElement(todo, index))
+  const filteredTodos = filterTodos(todos, currentFilter);
+
+  filteredTodos
+    .map((todo, index) => getTodoElement(todo, index, events))
     .forEach((element) => {
       newTodoList.appendChild(element);
     });
-
-  newTodoList.addEventListener("click", (e) => {
-    if (e.target.matches("button.destroy")) {
-      deleteItem(e.target.dataset.index);
-    }
-  });
 
   return newTodoList;
 };
