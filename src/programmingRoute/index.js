@@ -12,3 +12,13 @@ router
   .addRoute("#/list", pages.list)
   .setNotFound(pages.notFound)
   .start();
+
+const NAV_BTN_SELECTOR = "button[data-navigate]";
+
+document.body.addEventListener("click", (e) => {
+  const { target } = e;
+  if (target.matches(NAV_BTN_SELECTOR)) {
+    const { navigate } = target.dataset;
+    router.navigate(navigate);
+  }
+});
