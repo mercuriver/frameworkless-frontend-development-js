@@ -10,7 +10,17 @@ add("todos", todosView);
 add("counter", counterView);
 add("filters", filtersView);
 
-const { addChangeListener, ...events } = modelFactory();
+const loadState = () => {
+  const serializedState = window.localStorage.getItem("state");
+
+  if (!serializedState) {
+    return;
+  }
+
+  return JSON.parse(serializedState);
+};
+
+const { addChangeListener, ...events } = modelFactory(loadState());
 
 const render = (state) => {
   window.requestAnimationFrame(() => {
@@ -23,3 +33,13 @@ const render = (state) => {
 };
 
 addChangeListener(render);
+
+addChangeListener((state) => {
+  Promise.resolve().then(() => {
+    window.localStorage.setItem("state", JSON.stringify(state));
+  });
+});
+
+addChangeListener((state) => {
+  console.log(`Current State (${new Date().getTime()})`, state);
+});
