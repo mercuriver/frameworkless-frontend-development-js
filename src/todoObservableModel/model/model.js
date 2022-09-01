@@ -2,6 +2,8 @@ const cloneDeep = (x) => {
   return JSON.parse(JSON.stringify(x));
 };
 
+const freeze = (x) => Object.freeze(cloneDeep(x));
+
 const INITIAL_STATE = {
   todos: [],
   currentFilter: "All",
@@ -24,10 +26,6 @@ const modelFactory = (initalState = INITIAL_STATE) => {
   const invokeListeners = () => {
     const data = freeze(state);
     listeners.forEach((l) => l(data));
-  };
-
-  const getState = () => {
-    return Object.freeze(cloneDeep(state));
   };
 
   const addItem = (text) => {
@@ -117,7 +115,7 @@ const modelFactory = (initalState = INITIAL_STATE) => {
     completeAll,
     clearCompleted,
     changeFilter,
-    getState,
+    addChangeListener,
   };
 };
 
