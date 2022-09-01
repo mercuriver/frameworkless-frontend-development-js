@@ -1,6 +1,7 @@
 const ROUTE_PARAMETER_REGEXP = /:(\w+)/g;
 const URL_FRAGMENT_REGEXP = "([^\\/]+)";
 const TICKTIME = 250;
+const NAV_A_SELECTOR = "a[data-navigation]";
 
 const extractUrlParams = (route, pathname) => {
   const params = {};
@@ -37,8 +38,7 @@ const createRouter = () => {
     lastPathname = pathname;
 
     const currentRoute = routes.find((route) => {
-      const { testRegExp } = route;
-      return testRegExp.test(pathname);
+      return route.testRegExp.test(pathname);
     });
 
     if (!currentRoute) {
@@ -82,6 +82,16 @@ const createRouter = () => {
   router.start = () => {
     checkRoutes();
     window.setInterval(checkRoutes, TICKTIME);
+
+    document.body.addEventListener("click", (e) => {
+      const { target } = e;
+      if (target.matches(NAV_A_SELECTOR)) {
+        e.preventDefault();
+        router.navigate(target.href);
+      }
+    });
+
+    return router;
   };
 
   return router;
