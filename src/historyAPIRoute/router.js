@@ -1,14 +1,15 @@
 const ROUTE_PARAMETER_REGEXP = /:(\w+)/g;
 const URL_FRAGMENT_REGEXP = "([^\\/]+)";
+const TICKTIME = 250;
 
-const extractUrlParams = (route, windowHash) => {
+const extractUrlParams = (route, pathname) => {
   const params = {};
 
   if (route.params.length === 0) {
     return params;
   }
 
-  const matches = windowHash.match(route.testRegExp);
+  const matches = pathname.match(route.testRegExp);
 
   matches.shift();
 
@@ -23,15 +24,21 @@ const extractUrlParams = (route, windowHash) => {
 const createRouter = () => {
   const routes = [];
   let notFound = () => {};
+  let lastPathname;
 
   const router = {};
 
   const checkRoutes = () => {
-    const { hash } = window.location;
+    const { pathname } = window.location;
+    if (lastPathname === pathname) {
+      return;
+    }
+
+    lastPathname = pathname;
 
     const currentRoute = routes.find((route) => {
       const { testRegExp } = route;
-      return testRegExp.test(hash);
+      return testRegExp.test(pathname);
     });
 
     if (!currentRoute) {
@@ -39,26 +46,24 @@ const createRouter = () => {
       return;
     }
 
-    const urlParams = extractUrlParams(currentRoute, window.location.hash);
+    const urlParams = extractUrlParams(currentRoute, pathname);
 
-    currentRoute.component(urlParams);
+    currentRoute.callback(urlParams);
   };
 
-  router.addRoute = (fragment, component) => {
+  router.addRoute = (path, callback) => {
     const params = [];
 
-    const parsedFragment = fragment
+    const parsedPath = path
       .replace(ROUTE_PARAMETER_REGEXP, (match, paramName) => {
         params.push(paramName);
         return URL_FRAGMENT_REGEXP;
       })
       .replace(/\//g, "\\/");
 
-    console.log(`^${parsedFragment}$`);
-
     routes.push({
-      testRegExp: new RegExp(`^${parsedFragment}$`),
-      component,
+      testRegExp: new RegExp(`^${parsedPath}$`),
+      callback,
       params,
     });
 
@@ -70,18 +75,13 @@ const createRouter = () => {
     return router;
   };
 
-  router.navigate = (fragment) => {
-    window.location.hash = fragment;
+  router.navigate = (path) => {
+    window.history.pushState(null, null, path);
   };
 
   router.start = () => {
-    window.addEventListener("hashchange", checkRoutes);
-
-    if (!window.location.hash) {
-      window.location.hash = "#/";
-    }
-
     checkRoutes();
+    window.setInterval(checkRoutes, TICKTIME);
   };
 
   return router;
