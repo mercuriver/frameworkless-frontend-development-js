@@ -1,28 +1,25 @@
 import observableFactory from "./observable.js";
 
-const cloneDeep = (x) => {
-  return JSON.parse(JSON.stringify(x));
-};
-
-const freeze = (x) => Object.freeze(cloneDeep(x));
-
 const INITIAL_STATE = {
   todos: [],
   currentFilter: "All",
 };
 
-const modelFactory = (initalState = INITIAL_STATE) => {
-  const state = cloneDeep(initalState);
+const modelFactory = (initialState = INITIAL_STATE) => {
+  const state = observableFactory(initialState);
 
   const addItem = (text) => {
     if (!text) {
       return;
     }
 
-    state.todos.push({
-      text,
-      completed: false,
-    });
+    state.todos = [
+      ...state.todos,
+      {
+        text,
+        completed: false,
+      },
+    ];
   };
 
   const updateItem = (index, text) => {
@@ -38,7 +35,12 @@ const modelFactory = (initalState = INITIAL_STATE) => {
       return;
     }
 
-    state.todos[index].text = text;
+    state.todos = state.todos.map((todo, i) => {
+      if (i === index) {
+        todo.text = text;
+      }
+      return todo;
+    });
   };
 
   const deleteItem = (index) => {
@@ -50,7 +52,7 @@ const modelFactory = (initalState = INITIAL_STATE) => {
       return;
     }
 
-    state.todos.splice(index, 1);
+    state.todos = state.todos.filter((todo, i) => i !== index);
   };
 
   const toggleItemCompleted = (index) => {
@@ -62,12 +64,18 @@ const modelFactory = (initalState = INITIAL_STATE) => {
       return;
     }
 
-    state.todos[index].completed = !state.todos[index].completed;
+    state.todos = state.todos.map((todo, i) => {
+      if (i === index) {
+        todo.completed = !todo.completed;
+      }
+      return todo;
+    });
   };
 
   const completeAll = () => {
-    state.todos.forEach((t) => {
-      t.completed = true;
+    state.todos = state.todos.map((todo, i) => {
+      todo.completed = true;
+      return todo;
     });
   };
 
@@ -79,7 +87,8 @@ const modelFactory = (initalState = INITIAL_STATE) => {
     state.currentFilter = filter;
   };
 
-  const model = {
+  return {
+    addChangeListener: state.addChangeListener,
     addItem,
     updateItem,
     deleteItem,
@@ -88,8 +97,6 @@ const modelFactory = (initalState = INITIAL_STATE) => {
     clearCompleted,
     changeFilter,
   };
-
-  return observableFactory(model, () => state);
 };
 
 export default modelFactory;

@@ -4,45 +4,26 @@ const cloneDeep = (x) => {
 
 const freeze = (state) => Object.freeze(cloneDeep(state));
 
-const observableFactory = (model, stateGetter) => {
+const observableFactory = (initialState) => {
   let listeners = [];
 
-  const addChangeListener = (callback) => {
+  const proxy = new Proxy(cloneDeep(initialState), {
+    set: (target, name, value) => {
+      target[name] = value;
+      listeners.forEach((listener) => listener(freeze(proxy)));
+      return true;
+    },
+  });
+
+  proxy.addChangeListener = (callback) => {
     listeners.push(callback);
-    callback(freeze(stateGetter()));
+    callback(freeze(proxy));
     return () => {
       listeners = listeners.filter((listener) => listener !== callback);
     };
   };
 
-  const invokeListeners = () => {
-    const data = freeze(stateGetter());
-    listeners.forEach((l) => l(data));
-  };
-
-  const wrapAction = (originalAction) => {
-    return (...args) => {
-      const value = originalAction(...args);
-      invokeListeners();
-      return value;
-    };
-  };
-
-  const baseProxy = {
-    addChangeListener,
-  };
-
-  return Object.keys(model)
-    .filter((key) => {
-      return typeof model[key] === "function";
-    })
-    .reduce((proxy, key) => {
-      const action = model[key];
-      return {
-        ...proxy,
-        [key]: wrapAction(action),
-      };
-    }, baseProxy);
+  return proxy;
 };
 
 export default observableFactory;
