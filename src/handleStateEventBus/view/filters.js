@@ -1,6 +1,8 @@
+import eventCreators from "../model/eventCreators.js";
+
 const CLASS_NAME_SELETED = "selected";
 
-const view = (targetElement, { currentFilter }, { changeFilter }) => {
+const view = (targetElement, { currentFilter }, dispatch) => {
   const newFilters = targetElement.cloneNode(true);
 
   Array.from(newFilters.querySelectorAll("li a")).forEach((a) => {
@@ -12,7 +14,7 @@ const view = (targetElement, { currentFilter }, { changeFilter }) => {
 
     a.addEventListener("click", (e) => {
       e.preventDefault();
-      changeFilter(a.textContent);
+      dispatch(eventCreators.changeFilter(a.textContent));
     });
   });
 
