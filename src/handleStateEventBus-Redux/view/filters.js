@@ -1,4 +1,4 @@
-import eventCreators from "../model/eventCreators.js";
+import actionCreators from "../model/actionCreators.js";
 
 const CLASS_NAME_SELETED = "selected";
 
@@ -14,7 +14,7 @@ const view = (targetElement, { currentFilter }, dispatch) => {
 
     a.addEventListener("click", (e) => {
       e.preventDefault();
-      dispatch(eventCreators.changeFilter(a.textContent));
+      dispatch(actionCreators.changeFilter(a.textContent));
     });
   });
 

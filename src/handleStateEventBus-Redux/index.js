@@ -2,8 +2,7 @@ import { appView, todosView, counterView, filtersView } from "./view/index.js";
 import { renderRoot, add } from "./resistry.js";
 import applyDiff from "./applyDiff.js";
 
-import eventBusFactory from "./model/eventBus.js";
-import modelFactory from "./model/model.js";
+import reducer from "./model/reducer.js";
 
 // Todo: 'data-component' key 정리
 add("app", appView);
@@ -11,19 +10,29 @@ add("todos", todosView);
 add("counter", counterView);
 add("filters", filtersView);
 
-const model = modelFactory();
-const eventBus = eventBusFactory(model);
+const INITIAL_STATE = {
+  todos: [],
+  currentFilter: "All",
+};
 
-const render = (state) => {
+const { createStore } = Redux;
+
+const store = createStore(
+  reducer,
+  INITIAL_STATE,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+);
+
+const render = () => {
   window.requestAnimationFrame(() => {
     const main = document.querySelector("#root");
 
-    const newMain = renderRoot(main, state, eventBus.dispatch);
+    const newMain = renderRoot(main, store.getState(), store.dispatch);
 
     applyDiff(document.body, main, newMain);
   });
 };
 
-eventBus.subscribe(render);
+store.subscribe(render);
 
-render(eventBus.getState());
+render();

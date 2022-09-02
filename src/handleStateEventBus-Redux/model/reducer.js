@@ -1,14 +1,5 @@
-const cloneDeep = (x) => {
-  return JSON.parse(JSON.stringify(x));
-};
-
-const INITIAL_STATE = {
-  todos: [],
-  currentFilter: "All",
-};
-
-const addItem = (state, event) => {
-  const text = event.payload;
+const addItem = (state, action) => {
+  const text = action.payload;
   if (!text) {
     return state;
   }
@@ -25,8 +16,8 @@ const addItem = (state, event) => {
   };
 };
 
-const updateItem = (state, event) => {
-  const { text, index } = event.payload;
+const updateItem = (state, action) => {
+  const { text, index } = action.payload;
   if (!text) {
     return state;
   }
@@ -50,8 +41,8 @@ const updateItem = (state, event) => {
   };
 };
 
-const deleteItem = (state, event) => {
-  const index = event.payload;
+const deleteItem = (state, action) => {
+  const index = action.payload;
   if (index < 0) {
     return state;
   }
@@ -66,8 +57,8 @@ const deleteItem = (state, event) => {
   };
 };
 
-const toggleItemCompleted = (state, event) => {
-  const index = event.payload;
+const toggleItemCompleted = (state, action) => {
+  const index = action.payload;
 
   if (index < 0) {
     return state;
@@ -88,7 +79,7 @@ const toggleItemCompleted = (state, event) => {
   };
 };
 
-const completeAll = (state, event) => {
+const completeAll = (state, action) => {
   return {
     ...state,
     todos: state.todos.map((todo, i) => {
@@ -98,17 +89,17 @@ const completeAll = (state, event) => {
   };
 };
 
-const clearCompleted = (state, event) => {
+const clearCompleted = (state, action) => {
   return {
     ...state,
     todos: state.todos.filter((t) => !t.completed),
   };
 };
 
-const changeFilter = (state, event) => {
+const changeFilter = (state, action) => {
   return {
     ...state,
-    currentFilter: event.payload,
+    currentFilter: action.payload,
   };
 };
 
@@ -122,20 +113,12 @@ const methods = {
   FILTER_CHANGED: changeFilter,
 };
 
-const modelFactory = (initalState = INITIAL_STATE) => {
-  return (prevState, event) => {
-    if (!prevState) {
-      return cloneDeep(initalState);
-    }
+export default (prevState, action) => {
+  const currentModifier = methods[action.type];
 
-    const currentModifier = methods[event.type];
+  if (!currentModifier) {
+    return prevState;
+  }
 
-    if (!currentModifier) {
-      return prevState;
-    }
-
-    return currentModifier(prevState, event);
-  };
+  return currentModifier(prevState, action);
 };
-
-export default modelFactory;
